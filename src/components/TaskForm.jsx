@@ -2,15 +2,14 @@ import { useState } from "react";
 import "../styles/TaskForm.css";
 
 function TaskForm({ onAddTask }) {
-    // State variables
     const [taskName, setTaskName] = useState("");
     const [priority, setPriority] = useState("High");
 
-    // Function to run when Add Task button is clicked
     function handleAddTask() {
         const newTask = {
             name: taskName,
             priority: priority,
+            completed: false,
         };
 
         onAddTask(newTask);
@@ -27,12 +26,12 @@ function TaskForm({ onAddTask }) {
                 type="text"
                 placeholder="Enter task name"
                 value={taskName}
-                onChange={(event) => setTaskName(event.target.value)}
+                onChange={(e) => setTaskName(e.target.value)}
             />
 
             <select
                 value={priority}
-                onChange={(event) => setPriority(event.target.value)}
+                onChange={(e) => setPriority(e.target.value)}
             >
                 <option>High</option>
                 <option>Medium</option>

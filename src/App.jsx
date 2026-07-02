@@ -4,26 +4,56 @@ import Home from "./pages/Home";
 import Footer from "./components/Footer";
 import Profile from "./components/Profile";
 import TaskForm from "./components/TaskForm";
+import Dashboard from "./components/Dashboard";
 
 function App() {
-  // State to store all tasks
+  const [filter, setFilter] = useState("ALL");
   const [tasks, setTasks] = useState([]);
 
-  // Function to add a new task
+  // ADD TASK
   function addTask(newTask) {
-    setTasks([...tasks, newTask]);
+    const taskWithId = {
+      ...newTask,
+      id: Date.now(),
+      completed: false,
+    };
+
+    setTasks((prevTasks) => [...prevTasks, taskWithId]);
   }
 
-  // Function to delete a task
-  function deleteTask(indexToDelete) {
-    const updatedTasks = tasks.filter(
-      (task, index) => index !== indexToDelete
+  // DELETE TASK
+  function deleteTask(idToDelete) {
+    setTasks((prevTasks) =>
+      prevTasks.filter((task) => task.id !== idToDelete)
     );
-    setTasks(updatedTasks);
   }
+
+  // TOGGLE COMPLETE
+  function toggleComplete(idToToggle) {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === idToToggle
+          ? { ...task, completed: !task.completed }
+          : task
+      )
+    );
+  }
+
+  // FILTERED TASKS
+  const filteredTasks = tasks.filter((task) => {
+    if (filter === "COMPLETED") return task.completed;
+    if (filter === "ACTIVE") return !task.completed;
+    return true;
+  });
+
+  // STATS
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter((t) => t.completed).length;
+  const pendingTasks = tasks.filter((t) => !t.completed).length;
 
   return (
-    <>
+    <div className="app-container">
+
       <Header
         title="Student Task Manager"
         user="Harshini"
@@ -37,29 +67,80 @@ function App() {
         college="MRCET"
       />
 
+      {/* DASHBOARD */}
+      <Dashboard
+        total={totalTasks}
+        completed={completedTasks}
+        pending={pendingTasks}
+      />
+
+      {/* TASK FORM */}
       <TaskForm onAddTask={addTask} />
 
-      <h2>Task List</h2>
+      <h2 className="title">Task List</h2>
 
-      <ul>
-        {tasks.map((task, index) => (
-          <li key={index}>
-            {task.name} - {task.priority}
+      {/* FILTER BUTTONS */}
+      <div className="filter-container">
+        <button
+          className="filter-btn"
+          onClick={() => setFilter("ALL")}
+        >
+          All
+        </button>
 
-            <button
-              onClick={() => deleteTask(index)}
-              style={{ marginLeft: "10px" }}
+        <button
+          className="filter-btn"
+          onClick={() => setFilter("ACTIVE")}
+        >
+          Active
+        </button>
+
+        <button
+          className="filter-btn"
+          onClick={() => setFilter("COMPLETED")}
+        >
+          Completed
+        </button>
+      </div>
+
+      {/* TASK LIST */}
+      {tasks.length === 0 ? (
+        <p className="empty-text">No tasks added yet</p>
+      ) : (
+        <ul className="task-list">
+          {filteredTasks.map((task) => (
+            <li
+              key={task.id}
+              className={`task-item ${task.completed ? "completed" : ""
+                }`}
             >
-              ❌
-            </button>
-          </li>
-        ))}
-      </ul>
+              <span className="task-text">
+                {task.name} - {task.priority}
+              </span>
+
+              <div className="task-actions">
+                <button
+                  className="done-btn"
+                  onClick={() => toggleComplete(task.id)}
+                >
+                  {task.completed ? "Undo" : "✔ Done"}
+                </button>
+
+                <button
+                  className="delete-btn"
+                  onClick={() => deleteTask(task.id)}
+                >
+                  ❌
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <Home />
-
       <Footer />
-    </>
+    </div>
   );
 }
 
