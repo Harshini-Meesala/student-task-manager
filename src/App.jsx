@@ -11,9 +11,9 @@ function App() {
   const [tasks, setTasks] = useState([]);
 
   // ADD TASK
-  function addTask(newTask) {
+  function addTask(task) {
     const taskWithId = {
-      ...newTask,
+      ...task,
       id: Date.now(),
       completed: false,
     };
@@ -39,17 +39,17 @@ function App() {
     );
   }
 
-  // FILTERED TASKS
+  // FILTER TASKS
   const filteredTasks = tasks.filter((task) => {
     if (filter === "COMPLETED") return task.completed;
     if (filter === "ACTIVE") return !task.completed;
     return true;
   });
 
-  // STATS
+  // DASHBOARD STATS
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter((t) => t.completed).length;
-  const pendingTasks = tasks.filter((t) => !t.completed).length;
+  const pendingTasks = totalTasks - completedTasks;
 
   return (
     <div className="app-container">
@@ -67,19 +67,17 @@ function App() {
         college="MRCET"
       />
 
-      {/* DASHBOARD */}
       <Dashboard
         total={totalTasks}
         completed={completedTasks}
         pending={pendingTasks}
       />
 
-      {/* TASK FORM */}
-      <TaskForm onAddTask={addTask} />
+      {/* Fixed prop name */}
+      <TaskForm addTask={addTask} />
 
       <h2 className="title">Task List</h2>
 
-      {/* FILTER BUTTONS */}
       <div className="filter-container">
         <button
           className="filter-btn"
@@ -103,7 +101,6 @@ function App() {
         </button>
       </div>
 
-      {/* TASK LIST */}
       {tasks.length === 0 ? (
         <p className="empty-text">No tasks added yet</p>
       ) : (
@@ -111,12 +108,25 @@ function App() {
           {filteredTasks.map((task) => (
             <li
               key={task.id}
-              className={`task-item ${task.completed ? "completed" : ""
-                }`}
+              className={`task-item ${task.completed ? "completed" : ""}`}
             >
-              <span className="task-text">
-                {task.name} - {task.priority}
-              </span>
+              <div className="task-info">
+                <h3>{task.title}</h3>
+
+                <p>{task.description}</p>
+
+                <p>
+                  <strong>Priority:</strong> {task.priority}
+                </p>
+
+                <p>
+                  <strong>Category:</strong> {task.category}
+                </p>
+
+                <p>
+                  <strong>Due Date:</strong> {task.dueDate}
+                </p>
+              </div>
 
               <div className="task-actions">
                 <button
@@ -130,7 +140,7 @@ function App() {
                   className="delete-btn"
                   onClick={() => deleteTask(task.id)}
                 >
-                  ❌
+                  ❌ Delete
                 </button>
               </div>
             </li>
