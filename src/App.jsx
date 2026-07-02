@@ -1,14 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "./components/Header";
 import Home from "./pages/Home";
 import Footer from "./components/Footer";
 import Profile from "./components/Profile";
 import TaskForm from "./components/TaskForm";
 import Dashboard from "./components/Dashboard";
+import SearchBar from "./components/SearchBar";
 
 function App() {
   const [filter, setFilter] = useState("ALL");
-  const [tasks, setTasks] = useState([]);
+
+  // Load tasks from localStorage when the app starts
+  const [tasks, setTasks] = useState(() => {
+    const savedTasks = localStorage.getItem("tasks");
+    return savedTasks ? JSON.parse(savedTasks) : [];
+  });
+
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
+  const [editingTask, setEditingTask] = useState(null);
+
+  // Save tasks to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
   // ADD TASK
   function addTask(task) {
@@ -39,14 +54,58 @@ function App() {
     );
   }
 
-  // FILTER TASKS
-  const filteredTasks = tasks.filter((task) => {
-    if (filter === "COMPLETED") return task.completed;
-    if (filter === "ACTIVE") return !task.completed;
-    return true;
-  });
+  // UPDATE TASK
+  function updateTask(updatedTask) {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === updatedTask.id ? updatedTask : task
+      )
+    );
 
-  // DASHBOARD STATS
+    setEditingTask(null);
+  }
+
+  // FILTER + SEARCH
+  const filteredTasks = tasks
+    .filter((task) => {
+      const matchesFilter =
+        filter === "ALL"
+          ? true
+          : filter === "COMPLETED"
+            ? task.completed
+            : !task.completed;
+
+      const matchesSearch = task.title
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+      return matchesFilter && matchesSearch;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "newest":
+          return b.id - a.id;
+
+        case "oldest":
+          return a.id - b.id;
+
+        case "priority": {
+          const order = {
+            High: 1,
+            Medium: 2,
+            Low: 3,
+          };
+          return order[a.priority] - order[b.priority];
+        }
+
+        case "duedate":
+          return new Date(a.dueDate) - new Date(b.dueDate);
+
+        default:
+          return 0;
+      }
+    });
+  // DASHBOARD
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter((t) => t.completed).length;
   const pendingTasks = totalTasks - completedTasks;
@@ -73,8 +132,18 @@ function App() {
         pending={pendingTasks}
       />
 
-      {/* Fixed prop name */}
-      <TaskForm addTask={addTask} />
+      <SearchBar
+        search={search}
+        setSearch={setSearch}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+      />
+
+      <TaskForm
+        addTask={addTask}
+        editingTask={editingTask}
+        updateTask={updateTask}
+      />
 
       <h2 className="title">Task List</h2>
 
@@ -101,8 +170,8 @@ function App() {
         </button>
       </div>
 
-      {tasks.length === 0 ? (
-        <p className="empty-text">No tasks added yet</p>
+      {filteredTasks.length === 0 ? (
+        <p className="empty-text">No matching tasks found.</p>
       ) : (
         <ul className="task-list">
           {filteredTasks.map((task) => (
@@ -116,7 +185,13 @@ function App() {
                 <p>{task.description}</p>
 
                 <p>
-                  <strong>Priority:</strong> {task.priority}
+                  <strong>Priority:</strong>
+
+                  <span
+                    className={`priority-badge ${task.priority.toLowerCase()}`}
+                  >
+                    {task.priority}
+                  </span>
                 </p>
 
                 <p>
@@ -134,6 +209,13 @@ function App() {
                   onClick={() => toggleComplete(task.id)}
                 >
                   {task.completed ? "Undo" : "✔ Done"}
+                </button>
+
+                <button
+                  className="edit-btn"
+                  onClick={() => setEditingTask(task)}
+                >
+                  ✏ Edit
                 </button>
 
                 <button
