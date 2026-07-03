@@ -1,21 +1,28 @@
-{
-    tasks.map((task) => (
-        <div className="task-card" key={task.id}>
-            <h3>{task.title}</h3>
+import TaskCard from "./TaskCard";
 
-            <p>{task.description}</p>
+function TaskList({
+    tasks,
+    toggleComplete,
+    openDeleteModal,
+    setEditingTask,
+}) {
+    if (tasks.length === 0) {
+        return <p className="empty-text">No matching tasks found.</p>;
+    }
 
-            <p>
-                <strong>Priority:</strong> {task.priority}
-            </p>
-
-            <p>
-                <strong>Category:</strong> {task.category}
-            </p>
-
-            <p>
-                <strong>Due:</strong> {task.dueDate}
-            </p>
+    return (
+        <div className="task-list">
+            {tasks.map((task) => (
+                <TaskCard
+                    key={task.id}
+                    task={task}
+                    toggleComplete={toggleComplete}
+                    openDeleteModal={openDeleteModal}
+                    setEditingTask={setEditingTask}
+                />
+            ))}
         </div>
-    ))
+    );
 }
+
+export default TaskList;

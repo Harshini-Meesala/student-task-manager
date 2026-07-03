@@ -1,0 +1,33 @@
+/* 🌙 DARK MODE ROOT */
+.dark {
+    background: #0f172a;
+    color: #f9fafb;
+    min-height: 100vh;
+    transition: all 0.3s ease;
+}
+
+/* Cards */
+.dark .card,
+.dark .task-card,
+.dark .dashboard-wrapper,
+.dark .analytics-card,
+.dark .summary-card,
+.dark .upcoming-card,
+.dark .task-form {
+    background: #1e293b;
+    color: #f9fafb;
+}
+
+/* Inputs */
+.dark input,
+.dark textarea,
+.dark select {
+    background: #334155;
+    color: white;
+    border: 1px solid #475569;
+}
+
+/* Buttons */
+.dark button {
+    color: white;
+}
