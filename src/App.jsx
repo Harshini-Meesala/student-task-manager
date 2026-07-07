@@ -13,6 +13,7 @@ import Analytics from './components/Analytics';
 import TaskChart from './components/TaskChart';
 import UpcomingTasks from './components/UpcomingTasks';
 import './styles/DarkMode.css';
+import WelcomeBanner from "./components/WelcomeBanner";
 
 function App() {
   const [filter, setFilter] = useState('ALL');
@@ -151,6 +152,15 @@ function App() {
         date="1 July 2026"
         darkMode={darkMode}
         setDarkMode={setDarkMode}
+      />
+
+      <WelcomeBanner />
+
+      <Profile
+        name="Harshini"
+        branch="CSE"
+        year="4th Year"
+        college="MRCET"
       />
       <Profile name="Harshini" branch="CSE" year="4th Year" college="MRCET" />
       <Dashboard total={totalTasks} completed={completedTasks} pending={pendingTasks} />
